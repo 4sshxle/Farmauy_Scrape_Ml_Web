@@ -27,7 +27,14 @@ def precio_farmacia(producto):
 # ------------------------------
 def precios_mercadolibre(producto):
     url = f"https://listado.mercadolibre.com.uy/tienda/farmauy/{producto}?sb=storefront_url#D[A:{producto}]"
-    r = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
+
+    # Usamos un proxy uruguayo HIA
+    proxies = {
+        "http": "http://190.64.77.11:3128",
+        "https": "http://190.64.77.11:3128"
+    }
+
+    r = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, proxies=proxies)
     soup = BeautifulSoup(r.text, "html.parser")
 
     resultados = []
@@ -54,6 +61,7 @@ def precios_mercadolibre(producto):
                 continue
 
     return resultados
+
 
 # ------------------------------
 # Ruta principal
