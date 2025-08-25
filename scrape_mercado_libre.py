@@ -25,34 +25,41 @@ def precio_farmacia(producto):
 # ------------------------------
 # Función para obtener precios Mercado Libre
 # ------------------------------
+import requests
+from bs4 import BeautifulSoup
+
 def precios_mercadolibre(producto):
-    url = f"https://listado.mercadolibre.com.uy/tienda/farmauy/{producto}?sb=storefront_url#D[A:{producto}]"
-    r = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
-    soup = BeautifulSoup(r.text, "html.parser")
-
+    url = f"https://listado.mercadolibre.com.uy/tienda/farmauy/{producto}"
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                      "AppleWebKit/537.36 (KHTML, like Gecko) "
+                      "Chrome/116.0.0.0 Safari/537.36",
+        "Accept-Language": "es-UY,es;q=0.9",
+        "Referer": "https://www.mercadolibre.com.uy/"
+    }
+    
+    response = requests.get(url, headers=headers)
+    
+    if response.status_code != 200:
+        return []  # Si no devuelve 200, devuelve lista vacía
+    
+    soup = BeautifulSoup(response.text, "html.parser")
     resultados = []
-    items = soup.select("li.ui-search-layout__item")
-
-    for item in items:
-        titulo_tag = item.select_one("h3 a")
-        precio_tag = item.select_one("span.andes-money-amount__fraction")
-
-        if titulo_tag and precio_tag:
-            nombre = titulo_tag.text.strip()
-            link = titulo_tag["href"]
-
-            texto = precio_tag.text.replace(".", "").replace(",", ".").strip()
+    
+    for item in soup.find_all("li", class_="ui-search-layout__item"):
+        nombre_tag = item.select_one(".poly-component__title")
+        precio_tag = item.select_one(".andes-money-amount__fraction")
+        
+        if nombre_tag and precio_tag:
             try:
-                precio = float(texto)
-                resultados.append({
-                    "fuente": "Mercado Libre (FarmaUy)",
-                    "producto": nombre,
-                    "precio": precio,
-                    "url": link
-                })
-            except ValueError:
+                # Convertir a float en lugar de int para manejar decimales
+                precio_texto = precio_tag.text.replace(".", "").replace(",", ".").strip()
+                precio = float(precio_texto)
+                resultados.append((nombre_tag.text.strip(), precio))
+            except:
                 continue
-
+    
     return resultados
 
 # ------------------------------
