@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Comparador FarmaUy</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 30px; }
+    input { padding: 5px; width: 300px; }
+    button { padding: 5px 10px; }
+    h2 { color: green; }
+    li { margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Comparador de precios (FarmaUy)</h1>
+
+  <form method="post">
+    <input type="text" name="producto" placeholder="Ingrese SKU o producto" required value="{{ producto }}">
+    <button type="submit">Buscar</button>
+  </form>
+
+  {% if mejor %}
+    <h2>💰 Mejor precio: ${{ mejor.precio }} ({{ mejor.fuente }})</h2>
+    <hr>
+    <ul>
+      {% for r in resultados %}
+        <li>
+          {{ r.fuente }}: {{ r.producto }} → ${{ r.precio }}
+          <a href="{{ r.url }}" target="_blank">Ver</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</body>
+</html>
